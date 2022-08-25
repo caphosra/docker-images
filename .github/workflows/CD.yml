@@ -47,6 +47,6 @@ jobs:
         uses: docker/build-push-action@v3
         if: env.MATCHED_FILES || startsWith(github.event.ref, 'refs/tags/v')
         with:
+          context: ./${{ matrix.image }}
           push: true
-          tags: |
-            caphosra/${{ matrix.image }}:latest
+          tags: caphosra/${{ matrix.image }}:latest
