@@ -22,7 +22,8 @@ RUN \
         build-essential \
         git \
         httpie \
-        sudo; \
+        sudo \
+        tzdata; \
     ########################################################
     #
     # Add a user
@@ -96,5 +97,7 @@ RUN \
     ########################################################
     sudo apt clean; \
     sudo rm -rf /var/lib/apt/lists/*;
+
+ENV DEBIAN_FRONTEND=newt
 
 SHELL ["bash", "-l"]

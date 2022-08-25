@@ -33,7 +33,8 @@ RUN \
         httpie \
         python3 \
         python3-pip \
-        sudo; \
+        sudo \
+        tzdata; \
     pip3 install -U pip; \
     ########################################################
     #
@@ -119,5 +120,7 @@ RUN \
     ########################################################
     sudo apt clean; \
     sudo rm -rf /var/lib/apt/lists/*;
+
+ENV DEBIAN_FRONTEND=newt
 
 SHELL ["bash", "-l"]
