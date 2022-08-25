@@ -12,6 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Install fundamental tools
@@ -42,6 +43,7 @@ ENV BOOTSTRAP_HASKELL_NONINTERACTIVE=1
 ENV BOOTSTRAP_HASKELL_MINIMAL=1
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Install GHCup
@@ -90,6 +92,7 @@ RUN \
 FROM haskell AS ship
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Clean waste

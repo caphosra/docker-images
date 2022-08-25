@@ -11,6 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Activate i386 architecture
@@ -52,6 +53,7 @@ FROM base AS ctf
 WORKDIR /home/$USER_NAME
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Install ExifTool
@@ -113,6 +115,7 @@ RUN \
 FROM ctf AS ship
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Clean waste

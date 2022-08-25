@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Install fundamental tools
@@ -36,6 +37,7 @@ USER $USER_NAME
 FROM base AS ship
 
 RUN \
+    set -eux; \
     ########################################################
     #
     # Clean waste
