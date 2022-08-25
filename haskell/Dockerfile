@@ -54,7 +54,7 @@ RUN \
         libncurses-dev \
         libncurses5 \
         libtinfo5; \
-    http https://get-ghcup.haskell.org | sh; \
+    http --ignore-stdin https://get-ghcup.haskell.org | sh; \
     echo "export PATH=$PATH" >> /home/$USER_NAME/.profile; \
     ########################################################
     #

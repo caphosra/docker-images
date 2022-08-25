@@ -13,6 +13,7 @@ jobs:
     name: Build and publish caphosra/${{ matrix.image }}
 
     strategy:
+      fail-fast: false
       matrix:
         image:
           - ctf

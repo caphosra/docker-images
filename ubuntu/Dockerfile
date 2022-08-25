@@ -12,6 +12,7 @@ RUN \
     # Install fundamental tools
     #
     ########################################################
+    apt update; \
     apt install -y \
         build-essential \
         git \
