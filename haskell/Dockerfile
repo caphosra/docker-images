@@ -47,6 +47,7 @@ RUN \
     #
     ########################################################
     sudo apt install -y \
+        curl \
         libffi-dev \
         libffi7 \
         libgmp-dev \
