@@ -20,31 +20,32 @@ jobs:
           - ubuntu
 
     steps:
-      - uses: actions/checkout@v2
-        name: Checkout
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - uses: technote-space/get-diff-action@v6
+      - name: Look for a difference in the Docker file
+        uses: technote-space/get-diff-action@v6
         with:
           FILES: ${{ matrix.image }}/Dockerfile
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
-        if: env.MATCHED_FILES
+        if: env.MATCHED_FILES || startsWith(github.event.ref, 'refs/tags/v')
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
-        if: env.MATCHED_FILES
+        if: env.MATCHED_FILES || startsWith(github.event.ref, 'refs/tags/v')
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
-        if: env.MATCHED_FILES
+        if: env.MATCHED_FILES || startsWith(github.event.ref, 'refs/tags/v')
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
-        if: env.MATCHED_FILES
+        if: env.MATCHED_FILES || startsWith(github.event.ref, 'refs/tags/v')
         with:
           push: true
           tags: |
