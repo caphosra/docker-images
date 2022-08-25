@@ -85,6 +85,7 @@ RUN \
     # Install radare2 (https://github.com/radareorg/radare2)
     #
     ########################################################
+    sudo apt install -y wget; \
     git clone --depth=1 -b $RADARE2_VERSION https://github.com/radareorg/radare2; \
     radare2/sys/install.sh; \
     ########################################################
@@ -95,8 +96,9 @@ RUN \
     sudo apt install -y \
         libgmp3-dev \
         libmpc-dev; \
-    git clone --depth=1 -b $RCT_VERSION https://github.com/Ganapati/RsaCtfTool.git; \
+    git clone https://github.com/Ganapati/RsaCtfTool.git; \
     cd RsaCtfTool; \
+        git checkout $RCT_VERSION; \
         pip3 install -r "requirements.txt"; \
     cd ..; \
     ########################################################
