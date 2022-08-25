@@ -1,27 +1,16 @@
-FROM ubuntu:20.04
+FROM ubuntu:20.04 AS base
 
-ARG username=moby
-ARG userid=314
-ARG password=moby
+ARG USER_NAME=moby
+ARG USER_ID=31415
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV TERM xterm-256color
+ARG PEDA_VERSION=1.2
+ARG RADARE2_VERSION=5.7.6
+ARG RCT_VERSION=d0bcd54
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TERM=xterm-256color
 
 RUN \
-    ########################################################
-    #
-    # Install fundamental tools
-    #
-    ########################################################
-    apt update; \
-    apt upgrade -y; \
-    apt install -y \
-        build-essential \
-        git \
-        python3 \
-        python3-pip \
-        sudo; \
-    pip3 install -U pip; \
     ########################################################
     #
     # Activate i386 architecture
@@ -35,39 +24,53 @@ RUN \
         libstdc++6:i386; \
     ########################################################
     #
+    # Install fundamental tools
+    #
+    ########################################################
+    apt install -y \
+        build-essential \
+        git \
+        httpie \
+        python3 \
+        python3-pip \
+        sudo; \
+    pip3 install -U pip; \
+    ########################################################
+    #
     # Add a user
     #
     ########################################################
-    useradd -rm -d /home/$username -s /bin/bash -g root -G sudo -u $userid $username; \
-    echo "root:$password" | chpasswd; \
-    echo "$username:$password" | chpasswd; \
-    cd /home/$username; \
+    useradd -rm -d /home/$USER_NAME -s /bin/bash -g root -G sudo -u $USER_ID $USER_NAME; \
+    echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME; \
+    chmod 440 /etc/sudoers.d/$USER_NAME;
+
+USER $USER_NAME
+
+FROM base AS ctf
+
+WORKDIR /home/$USER_NAME
+
+RUN \
     ########################################################
     #
     # Install ExifTool
     #
     ########################################################
-    apt install -y exiftool; \
+    sudo apt install -y exiftool; \
     ########################################################
     #
     # Install gdb-peda (https://github.com/longld/peda.git)
     #
     ########################################################
-    apt install -y gdb; \
-    git clone https://github.com/longld/peda.git; \
-    echo "source ~/peda/peda.py" >> .gdbinit; \
-    ########################################################
-    #
-    # Install httpie (https://github.com/httpie/httpie)
-    #
-    ########################################################
-    apt install -y httpie; \
+    sudo apt install -y gdb; \
+    git clone --depth=1 -b v$PEDA_VERSION https://github.com/longld/peda.git; \
+    echo "source ~/peda/peda.py" >> ~/.gdbinit; \
     ########################################################
     #
     # Install ltrace
     #
     ########################################################
-    apt install -y ltrace; \
+    sudo apt install -y ltrace; \
     ########################################################
     #
     # Install pwntools (https://github.com/Gallopsled/pwntools)
@@ -79,42 +82,42 @@ RUN \
     # Install radare2 (https://github.com/radareorg/radare2)
     #
     ########################################################
-    git clone --depth=1 https://github.com/radareorg/radare2; \
-    radare2/sys/install.sh; \
+    git clone --depth=1 -b $RADARE2_VERSION https://github.com/radareorg/radare2; \
+    sudo radare2/sys/install.sh; \
     ########################################################
     #
     # Install RSA CTF Tool (https://github.com/Ganapati/RsaCtfTool)
     #
     ########################################################
-    apt install -y \
+    sudo apt install -y \
         libgmp3-dev \
         libmpc-dev; \
-    git clone https://github.com/Ganapati/RsaCtfTool.git; \
+    git clone --depth=1 -b $RSA_CTF_TOOL_VERSION https://github.com/Ganapati/RsaCtfTool.git; \
     cd RsaCtfTool; \
-    git checkout 08e53aa9e1de8e1cb17f160bf60e7bab8d507fe5; \
-    pip3 install -r "requirements.txt"; \
+        pip3 install -r "requirements.txt"; \
     cd ..; \
     ########################################################
     #
     # Install sagemath
     #
     ########################################################
-    apt install -y sagemath; \
+    sudo apt install -y sagemath; \
     ########################################################
     #
     # Install strace
     #
     ########################################################
-    apt install -y strace; \
+    sudo apt install -y strace;
+
+FROM ctf AS ship
+
+RUN \
     ########################################################
     #
     # Clean waste
     #
     ########################################################
-    apt remove -y --purge \
-        git; \
-    apt clean; \
-    rm -rf /var/lib/apt/lists/*;
+    sudo apt clean; \
+    sudo rm -rf /var/lib/apt/lists/*;
 
-USER $username
 SHELL ["bash", "-l"]
