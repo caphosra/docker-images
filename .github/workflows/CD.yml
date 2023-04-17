@@ -22,13 +22,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Look for a difference in the Docker file
         uses: technote-space/get-diff-action@v6
         with:
           PATTERNS: |
-            ${{ matrix.image }}/Dockerfile
+            ${{ matrix.image }}.dockerfile
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
@@ -45,10 +45,30 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+      - name: Login to the Container registry
+        uses: docker/login-action@v2
         if: env.GIT_DIFF_FILTERED || startsWith(github.event.ref, 'refs/tags/v')
         with:
-          context: ./${{ matrix.image }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        if: env.GIT_DIFF_FILTERED || startsWith(github.event.ref, 'refs/tags/v')
+        with:
+          images: |
+            caphosra/${{ matrix.image }}
+            ghcr.io/caphosra/${{ matrix.image }}
+          tags: |
+            latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        if: env.GIT_DIFF_FILTERED || startsWith(github.event.ref, 'refs/tags/v')
+        with:
+          file: ${{ matrix.image }}.dockerfile
           push: true
-          tags: caphosra/${{ matrix.image }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
