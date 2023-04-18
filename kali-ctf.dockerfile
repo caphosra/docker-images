@@ -41,7 +41,7 @@ RUN \
         dbus \
         dbus-x11 \
         novnc \
-        net-tools;
+        net-tools; \
     ########################################################
     #
     # Add a user
@@ -66,7 +66,7 @@ RUN \
     #
     ########################################################
     sudo apt install -y \
-        kali-tools-reverse-engineering;
+        kali-tools-reverse-engineering; \
     ########################################################
     #
     # Add entrypoint
