@@ -19,6 +19,7 @@ jobs:
           - ctf
           - haskell
           - ubuntu
+          - kali-ctf
 
     steps:
       - name: Checkout
