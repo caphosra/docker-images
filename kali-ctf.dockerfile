@@ -3,17 +3,19 @@
 #
 FROM kalilinux/kali-rolling:latest AS base
 
-ARG USER_NAME=moby
+ARG USER_NAME=kali
 ARG USER_ID=31415
 ARG KALI_METAPACKAGE=core
 ARG KALI_DESKTOP=xfce
 
 ENV DEBIAN_FRONTEND noninteractive
 
+ENV USER=$USER_NAME
 ENV VNC_EXPOSE=0
 ENV VNC_PORT=5900
 ENV VNC_DISPLAY=1920x1080
 ENV VNC_DEPTH=16
+ENV VNC_PASSWORD=moby
 ENV NOVNC_PORT=8080
 
 RUN \
@@ -56,7 +58,7 @@ USER $USER_NAME
 FROM base AS ctf
 
 WORKDIR /home/$USER_NAME
-COPY entrypoint.sh /entrypoint.sh
+COPY launch.sh /home/$USER_NAME/launch.sh
 
 RUN \
     set -eux; \
@@ -72,7 +74,7 @@ RUN \
     # Add entrypoint
     #
     ########################################################
-    sudo chmod +x /entrypoint.sh;
+    sudo chmod +x /home/$USER_NAME/launch.sh;
 
 FROM ctf AS ship
 
@@ -88,4 +90,4 @@ RUN \
 
 ENV DEBIAN_FRONTEND=newt
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+SHELL ["bash", "-l"]
