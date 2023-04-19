@@ -5,9 +5,9 @@
 #
 
 # Set password for VNC
-mkdir -p /$USER/.vnc/
-echo $VNCPWD | vncpasswd -f > /$USER/.vnc/passwd
-chmod 600 /$USER/.vnc/passwd
+mkdir -p /home/$USER/.vnc/
+echo $VNC_PASSWORD | vncpasswd -f > /home/$USER/.vnc/passwd
+chmod 600 /home/$USER/.vnc/passwd
 
 # Start VNC server
 if [ $VNC_EXPOSE = 1 ]
