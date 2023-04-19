@@ -5,12 +5,14 @@ FROM kalilinux/kali-rolling:latest AS base
 
 ARG USER_NAME=kali
 ARG USER_ID=31415
-ARG KALI_METAPACKAGE=core
+ARG KALI_METAPACKAGE=large
 ARG KALI_DESKTOP=xfce
+ARG PEDA_VERSION=1.2
+ARG RCT_VERSION=be982b3
 
 ENV DEBIAN_FRONTEND noninteractive
-
 ENV USER=$USER_NAME
+
 ENV VNC_EXPOSE=0
 ENV VNC_PORT=5900
 ENV VNC_DISPLAY=1920x1080
@@ -64,11 +66,38 @@ RUN \
     set -eux; \
     ########################################################
     #
-    # Install tools
+    # Install gdb-peda (https://github.com/longld/peda.git)
+    #
+    ########################################################
+    git clone --depth=1 -b v$PEDA_VERSION https://github.com/longld/peda.git; \
+    echo "source ~/peda/peda.py" >> ~/.gdbinit; \
+    ########################################################
+    #
+    # Install pwntools (https://github.com/Gallopsled/pwntools)
     #
     ########################################################
     sudo apt install -y \
-        kali-tools-reverse-engineering; \
+        python3
+        python3-pip
+        python3-dev
+        git
+        libssl-dev
+        libffi-dev
+        build-essential; \
+    python3 -m pip install --upgrade pip; \
+    python3 -m pip install --upgrade pwntools; \
+    ########################################################
+    #
+    # Install RSA CTF Tool (https://github.com/Ganapati/RsaCtfTool)
+    #
+    ########################################################
+    sudo apt install -y \
+        libgmp3-dev \
+        libmpc-dev; \
+    git clone --depth=1 -b $RCT_VERSION https://github.com/Ganapati/RsaCtfTool.git; \
+    cd RsaCtfTool; \
+    pip3 install -r "requirements.txt"; \
+    cd ..; \
     ########################################################
     #
     # Add entrypoint
