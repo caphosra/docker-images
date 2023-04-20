@@ -94,9 +94,10 @@ RUN \
     sudo apt install -y \
         libgmp3-dev \
         libmpc-dev; \
-    git clone --depth=1 -b $RCT_VERSION https://github.com/Ganapati/RsaCtfTool.git; \
+    git clone https://github.com/Ganapati/RsaCtfTool.git; \
     cd RsaCtfTool; \
-    pip3 install -r "requirements.txt"; \
+        git checkout $RCT_VERSION; \
+        pip3 install -r "requirements.txt"; \
     cd ..; \
     ########################################################
     #
