@@ -3,6 +3,8 @@
 #
 FROM kalilinux/kali-rolling:latest AS base
 
+ARG TARGETPLATFORM
+
 ARG USER_NAME=kali
 ARG USER_ID=31415
 ARG KALI_METAPACKAGE=large
@@ -22,6 +24,20 @@ ENV NOVNC_PORT=8080
 
 RUN \
     set -eux; \
+    ########################################################
+    #
+    # Activate amd64 architecture on arm64
+    #
+    ########################################################
+    if [ $TARGETPLATFORM = 'linux/arm64' ]; \
+    then dpkg --add-architecture amd64 \
+        && apt update \
+        && apt install -y \
+            libc6:amd64 \
+            libstdc++6:amd64 \
+            qemu-user-static \
+            binfmt-support; \
+    fi; \
     ########################################################
     #
     # Activate i386 architecture

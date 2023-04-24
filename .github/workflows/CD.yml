@@ -28,6 +28,9 @@ jobs:
           - image: kali-ctf
             arch: linux/amd64
             tag: latest
+          - image: kali-ctf
+            arch: linux/arm64
+            tag: arm64
 
     steps:
       - name: Checkout
