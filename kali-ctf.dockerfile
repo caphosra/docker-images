@@ -96,6 +96,7 @@ RUN \
         python3 \
         python3-pip \
         python3-dev \
+        python-z3 \
         git \
         libssl-dev \
         libffi-dev \
