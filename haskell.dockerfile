@@ -103,4 +103,4 @@ RUN \
 
 ENV DEBIAN_FRONTEND=newt
 
-SHELL ["bash", "-l"]
+CMD ["bash", "-l"]
