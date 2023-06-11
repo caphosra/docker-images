@@ -87,7 +87,14 @@ RUN \
     #
     ########################################################
     ghcup install hls $HLS_VERSION; \
-    ghcup set hls $HLS_VERSION;
+    ghcup set hls $HLS_VERSION; \
+    ########################################################
+    #
+    # Install fourmolu
+    #
+    ########################################################
+    stack install fourmolu; \
+    sudo mv ~/.local/bin/fourmolu /usr/local/bin;
 
 FROM haskell AS ship
 
