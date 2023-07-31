@@ -1,42 +1,11 @@
-FROM ubuntu:20.04 AS base
+##### INSERT! ./non-root/base
 
-ARG USER_NAME=moby
-ARG USER_ID=31415
+FROM base AS build
 
 ARG CABAL_VERSION=3.10.1.0
 ARG GHC_VERSION=9.4.5
 ARG HLS_VERSION=2.0.0.0
 ARG STACK_VERSION=2.11.1
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TERM=xterm-256color
-
-RUN \
-    set -eux; \
-    ########################################################
-    #
-    # Install fundamental tools
-    #
-    ########################################################
-    apt update; \
-    apt install -y \
-        build-essential \
-        git \
-        httpie \
-        sudo \
-        tzdata; \
-    ########################################################
-    #
-    # Add a user
-    #
-    ########################################################
-    useradd -rm -d /home/$USER_NAME -s /bin/bash -g root -G sudo -u $USER_ID $USER_NAME; \
-    echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME; \
-    chmod 440 /etc/sudoers.d/$USER_NAME;
-
-USER $USER_NAME
-
-FROM base AS haskell
 
 ENV PATH="/home/$USER_NAME/.cabal/bin:/home/$USER_NAME/.ghcup/bin:$PATH"
 ENV BOOTSTRAP_HASKELL_NONINTERACTIVE=1
@@ -96,18 +65,4 @@ RUN \
     stack install fourmolu; \
     sudo mv ~/.local/bin/fourmolu /usr/local/bin;
 
-FROM haskell AS ship
-
-RUN \
-    set -eux; \
-    ########################################################
-    #
-    # Clean waste
-    #
-    ########################################################
-    sudo apt clean; \
-    sudo rm -rf /var/lib/apt/lists/*;
-
-ENV DEBIAN_FRONTEND=newt
-
-CMD ["bash", "-l"]
+##### INSERT! ./non-root/clean

@@ -3,8 +3,6 @@
 #
 FROM kalilinux/kali-rolling:latest AS base
 
-ARG TARGETPLATFORM
-
 ARG USER_NAME=kali
 ARG USER_ID=31415
 ARG KALI_METAPACKAGE=large
@@ -13,6 +11,7 @@ ARG PEDA_VERSION=1.2
 ARG RCT_VERSION=be982b3
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV LC_CTYPE=C.UTF-8
 ENV USER=$USER_NAME
 
 ENV VNC_EXPOSE=0
@@ -24,20 +23,6 @@ ENV NOVNC_PORT=8080
 
 RUN \
     set -eux; \
-    ########################################################
-    #
-    # Activate amd64 architecture on arm64
-    #
-    ########################################################
-    if [ $TARGETPLATFORM = 'linux/arm64' ]; \
-    then dpkg --add-architecture amd64 \
-        && apt update \
-        && apt install -y \
-            libc6:amd64 \
-            libstdc++6:amd64 \
-            qemu-user-static \
-            binfmt-support; \
-    fi; \
     ########################################################
     #
     # Activate i386 architecture
@@ -73,10 +58,10 @@ RUN \
 
 USER $USER_NAME
 
-FROM base AS ctf
+FROM base AS build
 
 WORKDIR /home/$USER_NAME
-COPY launch.sh /home/$USER_NAME/launch.sh
+COPY ./ctf/launch.sh /home/$USER_NAME/launch.sh
 
 RUN \
     set -eux; \
@@ -105,6 +90,15 @@ RUN \
     python3 -m pip install --upgrade pwntools; \
     ########################################################
     #
+    # Install pwndbg (https://github.com/pwndbg/pwndbg)
+    #
+    ########################################################
+    git clone https://github.com/pwndbg/pwndbg; \
+    pushd pwndbg; \
+    ./setup.sh; \
+    popd; \
+    ########################################################
+    #
     # Install RSA CTF Tool (https://github.com/Ganapati/RsaCtfTool)
     #
     ########################################################
@@ -123,18 +117,4 @@ RUN \
     ########################################################
     sudo chmod +x /home/$USER_NAME/launch.sh;
 
-FROM ctf AS ship
-
-RUN \
-    set -eux; \
-    ########################################################
-    #
-    # Clean waste
-    #
-    ########################################################
-    sudo apt clean; \
-    sudo rm -rf /var/lib/apt/lists/*;
-
-ENV DEBIAN_FRONTEND=newt
-
-SHELL ["bash", "-l"]
+##### INSERT! ./non-root/clean

@@ -1,4 +1,6 @@
-FROM ubuntu:20.04 AS base
+ARG UBUNTU_VERSION
+
+FROM ubuntu:$UBUNTU_VERSION AS base
 
 ARG USER_NAME=moby
 ARG USER_ID=31415
@@ -33,19 +35,3 @@ RUN \
     chmod 440 /etc/sudoers.d/$USER_NAME;
 
 USER $USER_NAME
-
-FROM base AS ship
-
-RUN \
-    set -eux; \
-    ########################################################
-    #
-    # Clean waste
-    #
-    ########################################################
-    sudo apt clean; \
-    sudo rm -rf /var/lib/apt/lists/*;
-
-ENV DEBIAN_FRONTEND=newt
-
-SHELL ["bash", "-l"]
