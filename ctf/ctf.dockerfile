@@ -66,13 +66,6 @@ RUN \
     set -eux; \
     ########################################################
     #
-    # Install gdb-peda (https://github.com/longld/peda.git)
-    #
-    ########################################################
-    git clone --depth=1 -b v$PEDA_VERSION https://github.com/longld/peda.git; \
-    echo "source ~/peda/peda.py" >> ~/.gdbinit; \
-    ########################################################
-    #
     # Install pwntools (https://github.com/Gallopsled/pwntools)
     #
     ########################################################
@@ -80,13 +73,18 @@ RUN \
         python3 \
         python3-pip \
         python3-dev \
-        python-z3 \
         git \
         libssl-dev \
         libffi-dev \
         build-essential; \
     python3 -m pip install --upgrade pip; \
     python3 -m pip install --upgrade pwntools; \
+    ########################################################
+    #
+    # Install ptrlib (https://github.com/ptr-yudai/ptrlib)
+    #
+    ########################################################
+    pip install ptrlib; \
     ########################################################
     #
     # Install pwndbg (https://github.com/pwndbg/pwndbg)
@@ -107,7 +105,7 @@ RUN \
     git clone https://github.com/Ganapati/RsaCtfTool.git; \
     cd RsaCtfTool; \
         git checkout $RCT_VERSION; \
-        pip3 install -r "requirements.txt"; \
+        pip install -r "requirements.txt"; \
     cd ..; \
     ########################################################
     #
