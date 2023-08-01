@@ -5,7 +5,6 @@ FROM kalilinux/kali-rolling:latest AS base
 
 ARG USER_NAME=kali
 ARG USER_ID=31415
-ARG KALI_METAPACKAGE=large
 ARG KALI_DESKTOP=xfce
 ARG PEDA_VERSION=1.2
 ARG RCT_VERSION=be982b3
@@ -40,7 +39,7 @@ RUN \
     #
     ########################################################
     apt install -y \
-        kali-linux-$KALI_METAPACKAGE \
+        kali-linux-default \
         kali-desktop-$KALI_DESKTOP \
         tightvncserver \
         dbus \
@@ -67,13 +66,6 @@ RUN \
     set -eux; \
     ########################################################
     #
-    # Install gdb-peda (https://github.com/longld/peda.git)
-    #
-    ########################################################
-    git clone --depth=1 -b v$PEDA_VERSION https://github.com/longld/peda.git; \
-    echo "source ~/peda/peda.py" >> ~/.gdbinit; \
-    ########################################################
-    #
     # Install pwntools (https://github.com/Gallopsled/pwntools)
     #
     ########################################################
@@ -81,7 +73,6 @@ RUN \
         python3 \
         python3-pip \
         python3-dev \
-        python-z3 \
         git \
         libssl-dev \
         libffi-dev \
@@ -90,13 +81,19 @@ RUN \
     python3 -m pip install --upgrade pwntools; \
     ########################################################
     #
+    # Install ptrlib (https://github.com/ptr-yudai/ptrlib)
+    #
+    ########################################################
+    pip install ptrlib; \
+    ########################################################
+    #
     # Install pwndbg (https://github.com/pwndbg/pwndbg)
     #
     ########################################################
     git clone https://github.com/pwndbg/pwndbg; \
-    pushd pwndbg; \
-    ./setup.sh; \
-    popd; \
+    cd pwndbg; \
+        ./setup.sh; \
+    cd ..; \
     ########################################################
     #
     # Install RSA CTF Tool (https://github.com/Ganapati/RsaCtfTool)
@@ -108,7 +105,7 @@ RUN \
     git clone https://github.com/Ganapati/RsaCtfTool.git; \
     cd RsaCtfTool; \
         git checkout $RCT_VERSION; \
-        pip3 install -r "requirements.txt"; \
+        pip install -r "requirements.txt"; \
     cd ..; \
     ########################################################
     #

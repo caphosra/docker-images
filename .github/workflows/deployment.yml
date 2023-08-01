@@ -1,0 +1,103 @@
+name: Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    tags:
+      - v*.*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and publish caphosra/${{ matrix.config.image-name }}:${{ matrix.config.tag }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - image-name: ubuntu
+            image-path: ./non-root/ubuntu
+            tag: 22.04
+            build-args: |
+              UBUNTU_VERSION=22.04
+          - image-name: ubuntu
+            image-path: ./non-root/ubuntu
+            tag: 20.04
+            build-args: |
+              UBUNTU_VERSION=20.04
+          - image-name: haskell
+            image-path: ./haskell/haskell
+            tag: latest
+            build-args: |
+              UBUNTU_VERSION=20.04
+          - image-name: ctf
+            image-path: ./ctf/ctf
+            tag: latest
+            build-args:
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: amd64
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            caphosra/${{ matrix.config.image-name }}
+            ghcr.io/caphosra/${{ matrix.config.image-name }}
+          tags: |
+            ${{ matrix.config.tag }}
+
+      - name: Generate the image file
+        run: |
+          python3 ./build.py $IMAGE_PATH
+        env:
+          IMAGE_PATH: ${{ matrix.config.image-path }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        if: github.event_name != 'pull_request'
+        with:
+          context: .
+          file: ${{ matrix.config.image-path }}.gen.dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: ${{ matrix.config.build-args }}
+
+      - name: Build Docker image (without pushing it)
+        uses: docker/build-push-action@v4
+        if: github.event_name == 'pull_request'
+        with:
+          context: .
+          file: ${{ matrix.config.image-path }}.gen.dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: ${{ matrix.config.build-args }}
