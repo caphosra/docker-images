@@ -91,9 +91,9 @@ RUN \
     #
     ########################################################
     git clone https://github.com/pwndbg/pwndbg; \
-    pushd pwndbg; \
-    ./setup.sh; \
-    popd; \
+    cd pwndbg; \
+        ./setup.sh; \
+    cd ..; \
     ########################################################
     #
     # Install RSA CTF Tool (https://github.com/Ganapati/RsaCtfTool)
