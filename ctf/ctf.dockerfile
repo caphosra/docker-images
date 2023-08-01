@@ -5,7 +5,6 @@ FROM kalilinux/kali-rolling:latest AS base
 
 ARG USER_NAME=kali
 ARG USER_ID=31415
-ARG KALI_METAPACKAGE=large
 ARG KALI_DESKTOP=xfce
 ARG PEDA_VERSION=1.2
 ARG RCT_VERSION=be982b3
@@ -40,7 +39,7 @@ RUN \
     #
     ########################################################
     apt install -y \
-        kali-linux-$KALI_METAPACKAGE \
+        kali-linux-default \
         kali-desktop-$KALI_DESKTOP \
         tightvncserver \
         dbus \
